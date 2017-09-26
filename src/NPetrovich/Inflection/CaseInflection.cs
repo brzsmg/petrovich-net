@@ -3,15 +3,23 @@ using System.Collections.Generic;
 using System.Linq;
 using NPetrovich.Rules;
 using NPetrovich.Rules.Data;
+using NPetrovich.Rules.Loader;
+using NPetrovich.Utils;
 
 namespace NPetrovich.Inflection
 {
-    internal class CaseInflection
+    public class CaseInflection
     {
         private readonly RulesProvider provider;
         private readonly Gender gender;
 
-        public CaseInflection(RulesProvider provider, Gender gender)
+        public CaseInflection(Gender gender, IRulesLoader rulesLoader = null)
+            : this(new RulesProvider((rulesLoader ?? new EmbeddedResourceLoader())), gender)
+        {
+
+        }
+
+        internal CaseInflection(RulesProvider provider, Gender gender)
         {
             this.provider = provider;
             this.gender = gender;
@@ -34,7 +42,7 @@ namespace NPetrovich.Inflection
 
         private string InflectTo(string name, Case @case, RuleSet ruleSet)
         {
-            var nameChunks = name.Split('-').ToList();
+            var nameChunks = WordPreparer.GetChunks(name);
 
             return string.Join("-", nameChunks.Select((chunk, index) =>
                 {
@@ -133,14 +141,7 @@ namespace NPetrovich.Inflection
             }
 
             name = name.ToLower();
-            foreach (var chars in rule.TestSuffixes)
-            {
-                string test = matchWholeWord ? name : name.Substring(new []{0, name.Length - chars.Length}.Max());
-                if (test.Equals(chars))
-                    return true;
-            }
-
-            return false;
+            return new SuffixMatching(rule.TestSuffixes, matchWholeWord).IsMatched(name);
         }
     }
 }

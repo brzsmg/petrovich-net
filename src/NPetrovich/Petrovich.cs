@@ -1,19 +1,23 @@
-﻿using NPetrovich.Inflection;
+﻿using NPetrovich.GenderDetermination;
+using NPetrovich.Inflection;
 using NPetrovich.Rules;
 using NPetrovich.Rules.Loader;
 using NPetrovich.Utils;
 
 namespace NPetrovich
 {
-    public class Petrovich
+    public class Petrovich : IFio
     {
         private readonly IRulesLoader loader;
         private readonly RulesProvider provider;
+        private readonly GenderDeterminator _genderDeterminator;
+        private static readonly RulesProvider EmbeddedResourceLoader = new RulesProvider(new EmbeddedResourceLoader());
 
         public Petrovich(IRulesLoader rulesLoader = null)
         {
-            loader = rulesLoader ?? new EmbeddedResourceLoader();
-            provider = new RulesProvider(loader);
+            loader = rulesLoader;
+            provider = loader != null? new RulesProvider(loader): EmbeddedResourceLoader;
+            _genderDeterminator = rulesLoader == null ? GenderUtils.Determinator : new GenderDeterminator(provider);
         }
 
         public virtual bool AutoDetectGender { get; set; }
@@ -53,7 +57,7 @@ namespace NPetrovich
 
         public virtual string InflectLastNameTo(Case @case)
         {
-            Guard.IfArgumentNullOrWhitespace(LastName, "FirstName", "Last name was not provided");
+            Guard.IfArgumentNullOrWhitespace(LastName, "LastName", "Last name was not provided");
 
             if (AutoDetectGender) DetectGender();
 
@@ -62,7 +66,7 @@ namespace NPetrovich
 
         public virtual string InflectMiddleNameTo(Case @case)
         {
-            Guard.IfArgumentNullOrWhitespace(MiddleName, "FirstName", "Middle name was not provided");
+            Guard.IfArgumentNullOrWhitespace(MiddleName, "MiddleName", "Middle name was not provided");
 
             if (AutoDetectGender) DetectGender();
 
@@ -77,7 +81,7 @@ namespace NPetrovich
         protected virtual void DetectGender()
         {
             if (Gender == Gender.Androgynous)
-                Gender = GenderUtils.Detect(MiddleName);
+                Gender = _genderDeterminator.Determinate(this);
         }
     }
 }

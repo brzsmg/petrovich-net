@@ -1,5 +1,7 @@
 ﻿using System.IO;
-using YamlDotNet.RepresentationModel.Serialization;
+using Newtonsoft.Json;
+using NPetrovich.Rules.Data;
+using YamlDotNet.Serialization;
 
 namespace NPetrovich.Rules.Parser.Yaml
 {
@@ -8,6 +10,11 @@ namespace NPetrovich.Rules.Parser.Yaml
         public Data.Rules Parse(StreamReader data)
         {
             return new Deserializer().Deserialize<Data.Rules>(data);
+        }
+
+        public GenderRules ParseGender(StreamReader data)
+        {
+            return new Deserializer().Deserialize<GenderContainer>(data).Gender;
         }
     }
 }

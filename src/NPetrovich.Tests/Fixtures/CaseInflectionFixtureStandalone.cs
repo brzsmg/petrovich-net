@@ -1,28 +1,17 @@
 ﻿using NPetrovich.Inflection;
-using NPetrovich.Rules;
-using NPetrovich.Rules.Loader;
 using NPetrovich.Tests.TestDataProviders;
 using NUnit.Framework;
 
 namespace NPetrovich.Tests.Fixtures
 {
     [TestFixture]
-    public class CaseInflectionFixture
+    public class CaseInflectionFixtureStandalone
     {
-        private RulesProvider provider;
-
-        [TestFixtureSetUp]
-        public void FixtureSetUp()
-        {
-            var loader = new EmbeddedResourceLoader();
-            provider = new RulesProvider(loader);
-        }
-
         [Test]
         [TestCaseSource(typeof(InflectionTestCaseDataFactory), "FirstNamesInflectionData")]
         public void Should_inflect_first_name_correctly(string firstName, Gender gender, Case @case, string expected)
         {
-            var actual = new CaseInflection(provider, gender).InflectFirstNameTo(firstName, @case);
+            var actual = new CaseInflection(gender).InflectFirstNameTo(firstName, @case);
             Assert.AreEqual(expected, actual, string.Format("Gender: {0}, Case: {1}", gender, @case));
         }
 
@@ -30,7 +19,7 @@ namespace NPetrovich.Tests.Fixtures
         [TestCaseSource(typeof(InflectionTestCaseDataFactory), "LastNamesInflectionData")]
         public void Should_inflect_last_name_correctly(string lastName, Gender gender, Case @case, string expected)
         {
-            var actual = new CaseInflection(provider, gender).InflectLastNameTo(lastName, @case);
+            var actual = new CaseInflection(gender).InflectLastNameTo(lastName, @case);
             Assert.AreEqual(expected, actual, string.Format("Gender: {0}, Case: {1}", gender, @case));
         }
 
@@ -38,7 +27,7 @@ namespace NPetrovich.Tests.Fixtures
         [TestCaseSource(typeof(InflectionTestCaseDataFactory), "MiddleNamesInflectionData")]
         public void Should_inflect_middle_name_correctly(string middleName, Gender gender, Case @case, string expected)
         {
-            var actual = new CaseInflection(provider, gender).InflectMiddleNameTo(middleName, @case);
+            var actual = new CaseInflection(gender).InflectMiddleNameTo(middleName, @case);
             Assert.AreEqual(expected, actual, string.Format("Gender: {0}, Case: {1}", gender, @case));
         }
     }
